@@ -7,6 +7,7 @@ setup(
     name=package_name,
     version='0.4.2',
     packages=find_packages(exclude=['test']),
+    package_data={package_name: ['py.typed']},
     data_files=[
         ('share/' + package_name, ['package.xml']),
         ('share/ament_index/resource_index/packages',
