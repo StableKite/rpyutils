@@ -13,11 +13,16 @@
 # limitations under the License.
 
 import importlib
+import importlib.util
 import os
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Protocol, cast
 
 from rpyutils import add_dll_directories_from_env
+
+
+class _PackagedSDK(Protocol):
+    def activate(self) -> None: ...
 
 
 def import_c_library(name: str, package: Optional[str] = None):
@@ -31,6 +36,11 @@ def import_c_library(name: str, package: Optional[str] = None):
     :return The loaded module
     :raises ImportError
     """
+    if importlib.util.find_spec('_stablekite_ros_sdk') is not None:
+        # A normal colcon installation continues using its existing ROS prefix.
+        # The pip distribution supplies this real SDK and retains its DLL owners.
+        sdk = cast(_PackagedSDK, importlib.import_module('_stablekite_ros_sdk'))
+        sdk.activate()
     try:
         # Since Python 3.8, on Windows we should ensure DLL directories are
         # explicitly added to the search path.
